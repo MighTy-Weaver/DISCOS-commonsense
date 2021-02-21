@@ -8,11 +8,9 @@ import numpy as np
 import networkx as nx
 from tqdm import tqdm
 from multiprocessing import Pool
-from aser.extract.eventuality_extractor import SeedRuleEventualityExtractor
 from aser.database.kg_connection import ASERKGConnection
 
 from utils.utils import chunks_list
-from utils.atomic_utils import SUBJS, ATOMIC_SUBJS
 from utils.atomic_utils import ASER_rules_dict
 
 

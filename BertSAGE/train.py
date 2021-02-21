@@ -1,8 +1,6 @@
 import warnings
 
 warnings.filterwarnings("ignore")
-import torch
-import os
 from dataloader import *
 from model import *
 import argparse

@@ -1,11 +1,9 @@
+from itertools import chain
+
 import numpy as np
-import os
-import random
-import sys
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from itertools import chain
 from torch.nn.utils.rnn import pad_sequence
 from transformers import BertModel, RobertaModel
 
