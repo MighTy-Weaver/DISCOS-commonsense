@@ -1,4 +1,5 @@
 import warnings
+
 warnings.filterwarnings("ignore")
 import torch
 import os
@@ -37,7 +38,7 @@ parser.add_argument("--num_neighbor_samples", default=4, type=int, required=Fals
 parser.add_argument("--load_edge_types", default='ATOMIC', type=str, required=False,
                     choices=["ATOMIC", "ASER", "ATOMIC+ASER"],
                     help="load what edges to data_loader.adj_lists")
-parser.add_argument("--graph_cach_path", default="graph_cache/neg_{}_{}_{}_{}.pickle", 
+parser.add_argument("--graph_cach_path", default="graph_cache/neg_{}_{}_{}_{}.pickle",
                     type=str, required=False,
                     help="path of graph cache")
 parser.add_argument("--optimizer", default='SGD', type=str, required=False,
@@ -58,7 +59,7 @@ args = parser.parse_args()
 os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 lr = args.lr
 show_step = args.test_every
-batch_size= args.batch_size
+batch_size = args.batch_size
 num_epochs = args.epochs
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 test_batch_size = 64
@@ -66,50 +67,51 @@ neg_prop = args.neg_prop
 
 file_path = args.file_path
 
-graph_cache = args.graph_cach_path.format(args.negative_sample, args.load_edge_types, os.path.basename(file_path).split(".")[0])
+graph_cache = args.graph_cach_path.format(args.negative_sample, args.load_edge_types,
+                                          os.path.basename(file_path).split(".")[0])
 if not os.path.exists("models"):
     os.mkdir("models")
-model_dir = "models/"+os.path.basename(file_path).split(".")[0]
+model_dir = "models/" + os.path.basename(file_path).split(".")[0]
 if not os.path.exists(model_dir):
     os.mkdir(model_dir)
 if args.model == "simple":
-    model_save_path = os.path.join(model_dir, '{}_best_{}_bs{}_opt_{}_lr{}_decay{}_{}_{}.pth'\
-    .format(args.model, args.encoder, batch_size, args.optimizer, 
-        args.lr, args.lrdecay, args.decay_every, args.metric))
+    model_save_path = os.path.join(model_dir, '{}_best_{}_bs{}_opt_{}_lr{}_decay{}_{}_{}.pth' \
+                                   .format(args.model, args.encoder, batch_size, args.optimizer,
+                                           args.lr, args.lrdecay, args.decay_every, args.metric))
 elif args.model == "graphsage":
-    model_save_path = os.path.join(model_dir, '{}_best_{}_bs{}_opt_{}_lr{}_decay{}_{}_layer{}_neighnum_{}_graph_{}_{}.pth'\
-                        .format(args.model, args.encoder, batch_size, args.optimizer, args.lr, 
-                            args.lrdecay, args.decay_every, args.num_layers, 
-                            args.num_neighbor_samples, args.load_edge_types, args.metric))
+    model_save_path = os.path.join(model_dir,
+                                   '{}_best_{}_bs{}_opt_{}_lr{}_decay{}_{}_layer{}_neighnum_{}_graph_{}_{}.pth' \
+                                   .format(args.model, args.encoder, batch_size, args.optimizer, args.lr,
+                                           args.lrdecay, args.decay_every, args.num_layers,
+                                           args.num_neighbor_samples, args.load_edge_types, args.metric))
 
 print(graph_cache)
 if not os.path.exists(graph_cache):
-    data_loader = GraphDataset(file_path, device, args.encoder, 
-        negative_sample=args.negative_sample, load_edge_types=args.load_edge_types,
-        neg_prop=neg_prop)
+    data_loader = GraphDataset(file_path, device, args.encoder,
+                               negative_sample=args.negative_sample, load_edge_types=args.load_edge_types,
+                               neg_prop=neg_prop)
     with open(graph_cache, "wb") as writer:
-        pickle.dump(data_loader,writer,pickle.HIGHEST_PROTOCOL)  
+        pickle.dump(data_loader, writer, pickle.HIGHEST_PROTOCOL)
     print("after dumping graph cache to", graph_cache)
 else:
     with open(graph_cache, "rb") as reader:
         data_loader = pickle.load(reader)
     print("after loading graph cache from", graph_cache)
-    
 
 if args.model == "simple":
     model = SimpleClassifier(encoder=args.encoder,
-                        adj_lists=data_loader.get_adj_list(), 
-                       nodes_tokenized=data_loader.get_nodes_tokenized(),
-                       device=device,
-                        )
+                             adj_lists=data_loader.get_adj_list(),
+                             nodes_tokenized=data_loader.get_nodes_tokenized(),
+                             device=device,
+                             )
 elif args.model == 'graphsage':
     model = LinkPrediction(encoder=args.encoder,
-                        adj_lists=data_loader.get_adj_list(), 
-                       nodes_tokenized=data_loader.get_nodes_tokenized(),
-                       device=device,
-                       num_layers=args.num_layers,
-                       num_neighbor_samples=args.num_neighbor_samples,
-                        )
+                           adj_lists=data_loader.get_adj_list(),
+                           nodes_tokenized=data_loader.get_nodes_tokenized(),
+                           device=device,
+                           num_layers=args.num_layers,
+                           num_neighbor_samples=args.num_neighbor_samples,
+                           )
 
 criterion = torch.nn.CrossEntropyLoss()
 if args.optimizer == "SGD":
@@ -121,9 +123,9 @@ optimizer.zero_grad()
 step = 0
 
 best_valid_acc = 0
-best_test_acc = 0   
+best_test_acc = 0
 best_valid_pos_acc = 0
-best_test_pos_acc = 0 
+best_test_pos_acc = 0
 
 my_lr_scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer=optimizer, gamma=args.lrdecay)
 
@@ -137,7 +139,7 @@ for epoch in range(num_epochs):
             my_lr_scheduler.step()
         # batch list((node_id1, node_id2))
         edges, labels = batch
-        b_s, _ = edges.shape # batch_size, 2
+        b_s, _ = edges.shape  # batch_size, 2
         all_nodes = edges.reshape([-1])
 
         logits = model(all_nodes, b_s)
@@ -157,11 +159,13 @@ for epoch in range(num_epochs):
                 best_test_acc = test_acc
                 best_valid_pos_acc = val_pos_acc
                 best_test_pos_acc = test_pos_acc
-                
+
                 torch.save(model.state_dict(), model_save_path)
-                
+
             print(args.metric, ": epoch {}, step {}, current valid: {},"
-                  "current test: {}, curret valid pos:{},"
-                  " current test pos: {},".format(epoch, step, val_acc, test_acc, val_pos_acc, test_pos_acc))
+                               "current test: {}, curret valid pos:{},"
+                               " current test pos: {},".format(epoch, step, val_acc, test_acc, val_pos_acc,
+                                                               test_pos_acc))
             print(args.metric, ": current best val: {}, test: {}"
-                  "current best val pos: {}, test: {}".format(best_valid_acc, best_test_acc, best_valid_pos_acc, best_test_pos_acc))
+                               "current best val pos: {}, test: {}".format(best_valid_acc, best_test_acc,
+                                                                           best_valid_pos_acc, best_test_pos_acc))
