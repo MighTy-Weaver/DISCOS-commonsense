@@ -50,13 +50,11 @@ python -u BertSAGE/infer.py --gpu 0 --model graphsage \
 By populating the knowledge in ATOMIC to the whole ASER, we can acquire a large-scale ATOMIC-like knowledge graph by
 selecting the tuples scored by BertSAGE over 0.5. Also, we present the acquisition results of DISCOS under the setting
 of COMET, i.e., given h and r to generate t. The new knowledge graph can be
-downloaded [here](https://hkustconnect-my.sharepoint.com/:f:/g/personal/tfangaa_connect_ust_hk/ElHMMtHsCwZLg-AdP8ZdJT8BCBwTOyAOil1XLt4EfPYWUg?e=49u0i3)
-.
+downloaded [here](https://hkustconnect-my.sharepoint.com/:f:/g/personal/tfangaa_connect_ust_hk/ElHMMtHsCwZLg-AdP8ZdJT8BCBwTOyAOil1XLt4EfPYWUg?e=49u0i3).
 
 The 3.4M if-then knowledge is populated using the whole graph of ASER-core, without the neighbor filtering. You may find
 the processed training graph and inference
-candidates [here](https://hkustconnect-my.sharepoint.com/:f:/g/personal/tfangaa_connect_ust_hk/EmC5tdRCmQlMrfwBHrVHYE4B5_UhIfqL1uxNSNofLPMYQQ?e=dkQObG)
-.
+candidates [here](https://hkustconnect-my.sharepoint.com/:f:/g/personal/tfangaa_connect_ust_hk/EmC5tdRCmQlMrfwBHrVHYE4B5_UhIfqL1uxNSNofLPMYQQ?e=dkQObG).
 
 ## Cite
 
